@@ -19,17 +19,24 @@ class Item:
         self.quantity = quantity
         Item.all.append(self)
 
-    @classmethod
-    def instantiate_from_csv(cls, csv_file):
-        with open(csv_file) as csvfile:
-            reader = csv.DictReader(csvfile)
-            for row in reader:
-                _name = row['name']
-                price = row['price']
-                quantity = int(row['quantity'])
-                item = cls(_name, price, quantity)
-                return item
+   @classmethod
+    def instantiate_from_csv(cls):
+        try:
+            with open('/home/geydarovr/electronics-shop-project/src/items.csv', encoding='utf-8', errors='replace') as csvfile:
+                reader = csv.DictReader(csvfile)
 
+                for row in reader:
+                    _name = row['name']
+                    price = row['price']
+                    quantity = int(row['quantity'])
+                    if quantity <= 0:
+                        raise InstantiateCSVError("Файл item.csv поврежден")
+                    item = cls(_name, price, quantity)
+
+                    return item
+        except FileNotFoundError:
+            print('Отсутствует файл item.csv')
+            
     @staticmethod
     def string_to_number(string):
         return int(float((string)))
