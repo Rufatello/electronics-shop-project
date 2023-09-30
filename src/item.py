@@ -1,4 +1,9 @@
 import csv
+
+class InstantiateCSVError(Exception):
+    #
+    pass
+
 class Item:
     """
     Класс для представления товара в магазине.
@@ -19,23 +24,27 @@ class Item:
         self.quantity = quantity
         Item.all.append(self)
 
-   @classmethod
+       @classmethod
     def instantiate_from_csv(cls):
         try:
-            with open('/home/geydarovr/electronics-shop-project/src/items.csv', encoding='utf-8', errors='replace') as csvfile:
+            with open('C:\\Users\\wwwru\\electronics-shop-project\\src\\items.csv') as csvfile:
                 reader = csv.DictReader(csvfile)
-
                 for row in reader:
                     _name = row['name']
                     price = row['price']
-                    quantity = int(row['quantity'])
-                    if quantity <= 0:
-                        raise InstantiateCSVError("Файл item.csv поврежден")
-                    item = cls(_name, price, quantity)
+                    try:
+                        quantity = int(row['quantity'])
+                    except ValueError:
+                        raise ValueError('Неверный формат данных в колонке "quantity"')
 
+                    item = cls(_name, price, quantity)
                     return item
-        except FileNotFoundError:
-            print('Отсутствует файл item.csv')
+        except FileNotFoundError as e:
+            raise FileNotFoundError('Файл items.csv отсутствует.') from e
+        except csv.Error:
+            raise InstantiateCSVError('Файл item.csv поврежден')
+
+
             
     @staticmethod
     def string_to_number(string):
